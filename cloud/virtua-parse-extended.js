@@ -37,6 +37,7 @@ var VPX = {
      * @function
      */
     init: function() {
+        console.info('VPX is initializing ...');
         // Create the VpxEntityOperationLog collection if needed
         Parse.Schema.get('VpxEntityOperationLog').catch(function(error) {
             const schema = new Parse.Schema('VpxEntityOperationLog');
@@ -49,6 +50,7 @@ var VPX = {
         Parse.Cloud.job("vpx-reload", this._reload);
         // Load initial configuration
         this._load();
+        console.info('VPX started !');
     },
     // Private Functions
     _afterDeleteTrigger: function(request) {
@@ -94,7 +96,9 @@ var VPX = {
     },
     _reload: function(request, status) {
         // Reload VPX configuration
+        console.info('VPX is reloading its configuration ...');
         this._load();
+        console.info('VPX configuration reloaded !');
     }
 };
 
