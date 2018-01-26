@@ -1,0 +1,33 @@
+mongo:
+  image: mongo
+  labels:
+    - "com.dnsdock.alias=mongo.vpx.docker"
+
+parse-server:
+  image: parseplatform/parse-server
+  environment:
+    - PARSE_SERVER_APPLICATION_ID=VPX-Test
+    - PARSE_SERVER_MASTER_KEY=pofAveednajhotutEijOgtuddyecWep0
+    - PARSE_SERVER_DATABASE_URI=mongodb://mongo.vpx.docker/parse
+    - PORT=80
+  labels:
+    - "com.dnsdock.alias=server.vpx.docker"
+  links:
+    - mongo
+  volumes:
+    - cloud:/parse-server/cloud
+
+parse-dashboard:
+  image: parseplatform/parse-dashboard
+  environment:
+    - PARSE_DASHBOARD_ALLOW_INSECURE_HTTP=1
+    - PARSE_DASHBOARD_APP_ID=VPX-Test
+    - PARSE_DASHBOARD_MASTER_KEY=pofAveednajhotutEijOgtuddyecWep0
+    - PARSE_DASHBOARD_SERVER_URL=http://server.vpx.docker/parse
+    - PARSE_DASHBOARD_USER_ID=admin
+    - PARSE_DASHBOARD_USER_PASSWORD=Cywylkerk
+    - PORT=80
+  labels:
+    - "com.dnsdock.alias=dashboard.vpx.docker"
+  links:
+    - parse-server

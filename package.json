@@ -1,0 +1,15 @@
+{
+  "name": "virtua-parse-extended",
+  "version": "1.0.0",
+  "description": "VPX - Virtua Parse eXtended",
+  "main": "cloud/main.js",
+  "dependencies": {
+    "parse": "^1.11.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
