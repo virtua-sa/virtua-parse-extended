@@ -7,11 +7,12 @@ parse-server:
   image: parseplatform/parse-server
   environment:
     - PARSE_SERVER_APPLICATION_ID=VPX-Test
-    - PARSE_SERVER_CLOUD_CODE_MAIN=/parse-server/cloud/main.js
+    - PARSE_SERVER_CLOUD=/parse-server/cloud/main.js
     - PARSE_SERVER_LOGS_FOLDER=/parse-server/logs
     - PARSE_SERVER_MASTER_KEY=pofAveednajhotutEijOgtuddyecWep0
     - PARSE_SERVER_DATABASE_URI=mongodb://mongo.vpx.docker/parse
     - PORT=80
+    - VERBOSE=true
   labels:
     - "com.dnsdock.alias=server.vpx.docker"
   links:
