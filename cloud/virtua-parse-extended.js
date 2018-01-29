@@ -3,66 +3,70 @@
  * Copyright (c) Virtua SA, 2018. www.virtua.ch
  */ 
 
-'use strict';
+//'use strict';
+//var Parse = require('parse/node');
 
-var Parse = require('parse/node');
-
-var VPX = {
-    // Private Variables
+function VPX() {
     /**
      * Custom script that can be evaluated.
      * @private
      * @property
      * @type string
      */
-    _customCloudCode: null,
+
+    var _customCloudCode = null;
     /**
      * Operation types logged by VPX.
      * @private
      * @property
      * @type string[]
      */
-    _loggedOperationTypes: ['created', 'updated', 'deleted'],
+    var _loggedOperationTypes = ['created', 'updated', 'deleted'];
+
     /**
      * Operation on these entities will be logged by VPX.
      * @private
      * @property
      * @type string[]
      */
-    _loggedOperationEntities: [],
-    // Public Functions
+    var _loggedOperationEntities = [];
+
     /**
      * Initialize VPX.
      * @public
      * @function
      */
-    init: function() {
-        console.info('VPX is initializing ...');
+    this.init = function() {
+        console.info('[VPX] Initializing ...');
         // Create the VpxEntityOperationLog collection if needed
-        Parse.Schema.get('VpxEntityOperationLog').catch(function(error) {
+        var schema = new Parse.Schema('VpxEntityOperationLog');
+        schema.get().catch(function(error) {
             const schema = new Parse.Schema('VpxEntityOperationLog');
             schema.addString('className')
                   .addString('operation')
                   .addString('entityId');
             schema.save();
+            console.info('[VPX] VpxEntityOperationLog schema created.');
         });
         // Register jobs
-        Parse.Cloud.job("vpx-reload", this._reload);
+        Parse.Cloud.job("vpx-reload", _reload);
         // Load initial configuration
-        this._load();
-        console.info('VPX started !');
-    },
-    // Private Functions
-    _afterDeleteTrigger: function(request) {
+        _load();
+        console.info('[VPX] Started !');
+    }
+
+    _afterDeleteTrigger = function(request) {
         return this._logEntityOperation(request.object.className, 'deleted', request.object.id);
-    },
-    _afterSaveTrigger: function(request) {
+    }
+
+    _afterSaveTrigger = function(request) {
         return this._logEntityOperation(
             request.object.className, request.object.isNew() ? 'created' : 'updated', request.object.id);
-    },
-    _logEntityOperation: function(className, operation, entityId) {
-        // Do not log Parse Core entities and the log itself
-        if (className.startsWith('_') || className == 'VpxEntityOperationLog') {
+    }
+
+    _logEntityOperation = function(className, operation, entityId) {
+        // Do not log Parse Core entities, the log itself or non allowed operation types
+        if (className.startsWith('_') || className == 'VpxEntityOperationLog' || ! operation in _loggedOperationTypes) {
             return;
         }
         var log = new Parse.Object('VpxEntityOperationLog');
@@ -73,33 +77,44 @@ var VPX = {
             entityId: entityId
         }, {
             error: function(logfailled, error) {
-                console.error('Error saving entity operation log: className=' + className
+                console.error('[VPX] Error saving entity operation log: className=' + className
                 + ', operation=' + operation + ', entityId=' + entityId
                 + '(' +  error.code + ': ' + error.message + ')');
             }
         });
-    },
-    _load: function() {
+    }
+
+    _load = function() {
         // Register the triggers for every entities managed by Parse
-        Parse.Schema.all().forEach(function(entity) {
-            var className = entity.className;
-            // Skip Parse Core entities and the log itself
-            if (!(className.startsWith('_') || className == 'VpxEntityOperationLog' || this._loggedOperationEntities.contains(className))) {
-                Parse.Cloud.afterSave(className, this._afterSaveTrigger);
-                Parse.Cloud.afterDelete(className, this._afterDeleteTrigger);
-                this._loggedOperationEntities.add(className);
-            }
+        Parse.Schema.all().then(function(result) {
+            result.forEach(function(entity) {
+                var className = entity.className;
+                console.info('[VPX] Processing : ' + className + ' ...');
+                // Skip Parse Core entities and the log itself
+                if (!(className.startsWith('_') || className == 'VpxEntityOperationLog' || className in _loggedOperationEntities)) {
+                    Parse.Cloud.afterSave(className, _afterSaveTrigger);
+                    Parse.Cloud.afterDelete(className, _afterDeleteTrigger);
+                    _loggedOperationEntities.add(className);
+                    console.info('[VPX] Registred entity for operation logging: ' + className);
+                }
+            });
         });
         // Load configuration
-        this._customCloudCode = Parse.Config.current.get('VpxCustomCloudCode') || null;
-        this._loggedOperations = Parse.Config.current.get('VpxLoggedOperations') || ['created', 'updated', 'deleted'];
-    },
-    _reload: function(request, status) {
+        Parse.Config.get().then(function(config){
+            _customCloudCode = config.get('VpxCustomCloudCode') || null;
+            _loggedOperationTypes = config.get('VpxLoggedOperations') || ['created', 'updated', 'deleted'];
+            console.info('[VPX] VpxCustomCloudCode: ' + _customCloudCode);
+            console.info('[VPX] VpxLoggedOperations: ' + _loggedOperationTypes);
+        });
+    }
+    
+    _reload = function(request, status) {
         // Reload VPX configuration
-        console.info('VPX is reloading its configuration ...');
-        this._load();
-        console.info('VPX configuration reloaded !');
+        console.info('[VPX] Reloading configuration ...');
+        _load();
+        console.info('[VPX] Configuration reloaded !');
+        status.success("Reloaded");
     }
 };
 
-module.exports = VPX;
+module.exports = new VPX();
