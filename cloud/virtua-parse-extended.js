@@ -45,6 +45,7 @@ function VirtuaParseExtended() {
         });
         // Register jobs
         Parse.Cloud.job('vpx-reload', reloadJob);
+        Parse.Cloud.job('vpx-exec-ccc', execCustomCloudCodeJob);
         // Load initial configuration
         load();
         console.info('[VPX] Started !');
@@ -138,6 +139,18 @@ function VirtuaParseExtended() {
         load();
         console.info('[VPX] Configuration reloaded !');
         status.success('Reloaded');
+    }
+
+    /**
+     * Handler for Parse job 'vpx-exec-ccc'.
+     */
+    execCustomCloudCodeJob = function(request, status) {
+        // Execute custom cloud code
+        console.info('[VPX] Executing custom cloud code (job) ...');
+        console.info('[VPX] VpxCustomCloudCode: ' + customCloudCode);
+        eval(customCloudCode);
+        console.info('[VPX] Custom cloud code executed !');
+        status.success('Executed');
     }
 };
 
