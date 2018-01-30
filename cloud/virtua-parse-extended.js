@@ -148,9 +148,14 @@ function VirtuaParseExtended() {
         // Execute custom cloud code
         console.info('[VPX] Executing custom cloud code (job) ...');
         console.info('[VPX] VpxCustomCloudCode: ' + customCloudCode);
-        eval(customCloudCode);
-        console.info('[VPX] Custom cloud code executed !');
-        status.success('Executed');
+        try {
+            eval(customCloudCode);
+            console.info('[VPX] Custom cloud code executed !');
+            status.success('Executed');
+        } catch (e) {
+            console.error('[VPX] Error while executing custom cloud code: ' + e);
+            status.error('Error: ' + e);
+        }
     }
 };
 
