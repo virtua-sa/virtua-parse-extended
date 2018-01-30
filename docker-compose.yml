@@ -12,7 +12,7 @@ parse-server:
     - PARSE_SERVER_MASTER_KEY=pofAveednajhotutEijOgtuddyecWep0
     - PARSE_SERVER_DATABASE_URI=mongodb://mongo.vpx.docker/parse
     - PORT=80
-    - VERBOSE=true
+    #- VERBOSE=true
   labels:
     - "com.dnsdock.alias=server.vpx.docker"
   links:
