@@ -45,8 +45,6 @@ function VirtuaParseExtended() {
         });
         // Register jobs
         Parse.Cloud.job('vpx-reload', reloadJob);
-        // Register trigger on _Schema updates
-        Parse.Cloud.afterSave(Parse.Schema, reloadTrigger);
         // Load initial configuration
         load();
         console.info('[VPX] Started !');
@@ -140,16 +138,6 @@ function VirtuaParseExtended() {
         load();
         console.info('[VPX] Configuration reloaded !');
         status.success('Reloaded');
-    }
-
-    /**
-     * Handler for Parse trigger hooking modifications on _Schema.
-     */
-    reloadTrigger = function(request) {
-        // Reload VPX configuration
-        console.info('[VPX] Reloading configuration (trigger) ...');
-        load();
-        console.info('[VPX] Configuration reloaded !');
     }
 };
 
