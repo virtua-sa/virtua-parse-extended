@@ -1,10 +1,10 @@
 # ![Virtua SA logo](https://www.virtua.ch/favicon.png) VPX - Virtua Parse eXtender
 
-*Virtua Parse eXtender* or *VPX* is a free and open source extension for Parse providing, for now:
+*Virtua Parse eXtender* or *VPX* is a free and open source extension for [Parse](https://github.com/parse-community/parse-server) providing, for now:
 
 * A customisable log for all operations done on Parse entities (create, update and **delete**) ;
-* A possibility to run a custom cloud code from Parse API or Parse Dashboard ;
-* *VPX* allow users to reload its configuration through Parse API and Parse Dashboard.
+* A possibility to run a custom [cloud code](http://docs.parseplatform.org/cloudcode/guide/#getting-started) from Parse API or Parse Dashboard ;
+* *VPX* allow users to reload its configuration through Parse API and [Parse Dashboard](https://github.com/parse-community/parse-dashboard).
 
 ## Installation
 
