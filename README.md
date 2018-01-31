@@ -46,7 +46,7 @@ These parameters can be created with Parse Dashboard in `Config > Create a param
 * `vpx-reload`: Reloads *VPX* configuration, can be called when new Parse classes have been added to monitor them.
 * `vpx-exec-ccc`: Executes the custom cloud code.
 
-## Test locally
+## Test it locally
 
 You can use the `docker-compose` provided to run locally *VPX*, Parse Server and Parse Dashboard:
 
@@ -57,6 +57,6 @@ You can use the `docker-compose` provided to run locally *VPX*, Parse Server and
 
 Note: you'll need [`dnsdock`](https://github.com/aacebedo/dnsdock) in aim to use this setup.
 
-## Licence terms
+## License terms
 
 *VPX - Virtua Parse eXtended* is published under the terms of [GNU Affero General Public License v3](https://www.gnu.org/licenses/agpl-3.0.html), see the [LICENSE](LICENSE) file.
