@@ -50,8 +50,8 @@ These parameters can be created with Parse Dashboard in `Config > Create a param
 
 You can use the `docker-compose` provided to run locally *VPX*, Parse Server and Parse Dashboard:
 
-1. Clone or download this repository: `git clone ...`
-2. Run docker-compose: `docker-compose up`
+1. Clone or download this repository: `git clone https://github.com/virtua-sa/virtua-parse-extended.git`
+2. Run docker-compose: `cd virtua-parse-extended`, then `docker-compose up`
 3. Browse to: http://dashboard.vpx.docker/
    * Login and password can be found in the `docker-compose.yml` file, under section `parse-dashboard > environment > PARSE_DASHBOARD_USER_*`
 
