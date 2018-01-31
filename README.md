@@ -16,6 +16,19 @@
    ```
 3. Restart your Parse server.
 
+## Usage
+
+*VPX* will monitor every modification made on user Parse entities and log them in the class `VpxEntityOperationLog`:
+
+| Field         | Type     | Description
+| :------------ | :------- | :------------------------------------------------------------
+| `createdAt`   | `Date`   | Date of the event
+| `operation`   | `String` | Operation executed, can be: `created`, `updated` or `deleted`
+| `targetClass` | `String` | Class name of the entity modified
+| `targetId`    | `String` | Parse ID of the entity modified
+
+Note: by default, *VPX* will monitor *create*, *update* and *delete* operations. If a new class is added, *VPX* configuration must be reloaded with job `vpx-reload` or by restarting the Parse server in aim to monitor the added classes.
+
 ## Configuration
 
 *VPX* can be configuration through configuration parameters available with Parse.
