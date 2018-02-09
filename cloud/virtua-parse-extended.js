@@ -22,6 +22,12 @@
 
 function VirtuaParseExtended() {
     /**
+     * Operation on these entities are logged by VPX.
+     * @type string[]
+     */
+    var currentLoggedOperationEntities = [];
+
+    /**
      * Custom script that can be evaluated.
      * @private
      * @property
@@ -37,9 +43,11 @@ function VirtuaParseExtended() {
 
     /**
      * Operation on these entities will be logged by VPX.
+     * An empty array means no entities will be monitored,
+     * a null value means all entities will be monitored.
      * @type string[]
      */
-    var loggedOperationEntities = [];
+    var loggedOperationEntities = null;
 
     /**
      * Initialize VPX.
@@ -48,15 +56,19 @@ function VirtuaParseExtended() {
     this.init = function() {
         console.info('[VPX] Initializing ...');
         // Create the VpxEntityOperationLog collection if needed
-        var schema = new Parse.Schema('VpxEntityOperationLog');
-        schema.get().catch(function(error) {
-            const schema = new Parse.Schema('VpxEntityOperationLog');
-            schema.addString('targetClass')
-                  .addString('targetId')
-                  .addString('operation');
-            schema.save();
-            console.info('[VPX] VpxEntityOperationLog schema created.');
-        });
+        if (typeof Parse.Schema === "function") {
+            var schema = new Parse.Schema('VpxEntityOperationLog');
+            schema.get().catch(function(error) {
+                const schema = new Parse.Schema('VpxEntityOperationLog');
+                schema.addString('targetClass')
+                    .addString('targetId')
+                    .addString('operation');
+                schema.save();
+                console.info('[VPX] VpxEntityOperationLog schema created.');
+            });
+        } else {
+            console.warn('[VPX] VpxEntityOperationLog schema cannot be created, please upgrade to parse-server@2.7.2 !');
+        }
         // Register jobs
         Parse.Cloud.job('vpx-reload', reloadJob);
         Parse.Cloud.job('vpx-exec-ccc', execCustomCloudCodeJob);
@@ -115,32 +127,46 @@ function VirtuaParseExtended() {
     }
 
     /**
+     * Register triggers on user Parse entities.
+     * @argument object entity
+     */
+    monitorEntityOperation = function(className) {
+        // Skip Parse Core entities, the log itself and already monitored entities
+        if (!(className.startsWith('_') || className == 'VpxEntityOperationLog' || currentLoggedOperationEntities.includes(className))) {
+            console.info('[VPX] Processing : ' + className + ' ...');
+            Parse.Cloud.afterSave(className, afterSaveTrigger);
+            Parse.Cloud.afterDelete(className, afterDeleteTrigger);
+            currentLoggedOperationEntities.push(className);
+            console.info('[VPX] Registred entity for operation logging: ' + className);
+        }
+    }
+
+    /**
      * Loads configuration of Virtua Parse eXtended.
      * @returns void
      */
     load = function() {
-        console.log('[VPX] Already monitored entities: ' + loggedOperationEntities);
-        // Register the triggers for every entities managed by Parse
-        Parse.Schema.all().then(function(result) {
-            result.forEach(function(entity) {
-                var className = entity.className;
-                // Skip Parse Core entities, the log itself and already monitored entities
-                if (!(className.startsWith('_') || className == 'VpxEntityOperationLog' || loggedOperationEntities.includes(className))) {
-                    console.info('[VPX] Processing : ' + className + ' ...');
-                    Parse.Cloud.afterSave(className, afterSaveTrigger);
-                    Parse.Cloud.afterDelete(className, afterDeleteTrigger);
-                    loggedOperationEntities.push(className);
-                    console.info('[VPX] Registred entity for operation logging: ' + className);
-                }
-            });
-            console.log('[VPX] Monitored entities: ' + loggedOperationEntities);
-        });
         // Load configuration
         Parse.Config.get().then(function(config) {
             customCloudCode = config.get('VpxCustomCloudCode') || customCloudCode;
+            loggedOperationEntities = config.get('VpxLoggedEntities') || loggedOperationEntities;
             loggedOperationTypes = config.get('VpxLoggedOperations') || loggedOperationTypes;
             console.info('[VPX] VpxCustomCloudCode: ' + customCloudCode);
+            console.info('[VPX] VpxLoggedEntities: ' + loggedOperationEntities);
             console.info('[VPX] VpxLoggedOperations: ' + loggedOperationTypes);
+            console.info('[VPX] Already monitored entities: ' + currentLoggedOperationEntities);
+            // Register the triggers for every entities managed by Parse
+            if (loggedOperationEntities === null && typeof Parse.Schema === "function") {
+                console.info('[VPX] Discovering new entities to monitor ...');
+                Parse.Schema.all().then(function(result) {
+                    result.map(x => x.className).forEach(monitorEntityOperation);
+                    console.info('[VPX] Monitored entities: ' + currentLoggedOperationEntities);
+                });
+            } else {
+                console.info('[VPX] Using value of VpxLoggedEntities to register new entities to monitor ...');
+                loggedOperationEntities.forEach(monitorEntityOperation);
+                console.info('[VPX] Monitored entities: ' + currentLoggedOperationEntities);
+            }
         });
     }
 
