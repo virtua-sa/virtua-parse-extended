@@ -1,10 +1,10 @@
 mongo:
-  image: mongo
+  image: mongo:3.6
   labels:
     - "com.dnsdock.alias=mongo.vpx.docker"
 
 parse-server:
-  image: parseplatform/parse-server
+  image: parseplatform/parse-server:2.7.2
   environment:
     - PARSE_SERVER_APPLICATION_ID=VPX-Test
     - PARSE_SERVER_CLOUD=/parse-server/cloud/main.js
@@ -22,7 +22,7 @@ parse-server:
     - ./logs:/parse-server/logs
 
 parse-dashboard:
-  image: parseplatform/parse-dashboard
+  image: parseplatform/parse-dashboard:1.1.2
   environment:
     - PARSE_DASHBOARD_ALLOW_INSECURE_HTTP=1
     - PARSE_DASHBOARD_APP_ID=VPX-Test
