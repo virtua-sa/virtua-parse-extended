@@ -16,6 +16,8 @@
    ```
 3. Restart your Parse server.
 
+Note : *VPX* requires at least `parse-server@2.7.2` to work properly, but it has been made compatible in a degraded mode for older versions.
+
 ## Usage
 
 *VPX* will monitor every modification made on user Parse entities and log them in the class `VpxEntityOperationLog`:
@@ -37,6 +39,7 @@ These parameters can be created with Parse Dashboard in `Config > Create a param
 | Parameter             | Type     | Default value                       | Description
 | :-------------------- | :------- | :---------------------------------- | :-------------------------------------------
 | `VpxCustomCloudCode`  | `String` | `null`                              | Your custom cloud code to run on Parse server
+| `VpxLoggedEntities`   | `Array`  | `null`                              | Names of entities to monitor, use `null` to let *VPX* discover new entities
 | `VpxLoggedOperations` | `Array`  | `["created", "updated", "deleted"]` | Operation types allowed to be logged
 
 ## Jobs
